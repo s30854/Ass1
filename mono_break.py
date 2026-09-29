@@ -67,18 +67,22 @@ def main():
 
     # Optional: Override/Refine specific letters manually once you spot words
     manual_overrides = {
-        # 'c': 'e',
-        # 'x': 't',
-        's':'h', #From the start
-        'f':'r', #From words containing "ere"
-        ''
+        's':'h',
+        'f':'r',
+        'o':'w',
     }
+
+    # Maybe check the manual overrides then redo the auto mapping to the next closest letter excluding the manual override.
+    # This would remove the duplicates made from the manual overrides.
+
     final_mapping = {**auto_mapping, **manual_overrides}
 
     decoded_text = decrypt_text(cipher_text, final_mapping)
 
     output_file.write_text(decoded_text, encoding="utf-8")
     print(f"Decoded text written to {output_file}")
+
+    print(f"Key is")
 
 
 if __name__ == "__main__":
