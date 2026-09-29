@@ -121,6 +121,13 @@ def main():
 
     output_file.write_text(decoded_text, encoding="utf-8")
     print(f"Decoded text written to {output_file}")
+    
+    print('Key:"' + "".join(
+        final_mapping.get(cipher_letter, "?")
+        for cipher_letter in "abcdefghijklmnopqrstuvwxyz"
+    ) + '"')
+
+    
 
 if __name__ == "__main__":
     main()
