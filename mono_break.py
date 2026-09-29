@@ -25,7 +25,6 @@ def analyze_frequency(text: str) -> dict[str, float]:
 def generate_frequency_mapping(cipher_text: str) -> dict[str, str]:
     """
     Maps cipher letters to standard English letters based on ranked frequencies.
-    Prevents duplicate mappings by sorting both frequency lists.
     """
     cipher_freqs = analyze_frequency(cipher_text)
     
@@ -37,6 +36,39 @@ def generate_frequency_mapping(cipher_text: str) -> dict[str, str]:
     
     # Map ranked cipher letters directly to ranked English letters
     return dict(zip(sorted_cipher, sorted_english))
+
+
+def generate_frequency_mapping_with_overrides(
+    cipher_text: str,
+    manual_overrides: dict[str, str],
+) -> dict[str, str]:
+    """Build a frequency mapping while reserving letters used by overrides."""
+    overrides = {
+        cipher_letter.lower(): english_letter.lower()
+        for cipher_letter, english_letter in manual_overrides.items()
+    }
+    if len(set(overrides.values())) != len(overrides):
+        raise ValueError("Manual overrides must map to unique English letters.")
+
+    cipher_frequencies = analyze_frequency(cipher_text)
+    ranked_cipher = sorted(
+        cipher_frequencies,
+        key=cipher_frequencies.get,
+        reverse=True,
+    )
+    ranked_english = sorted(
+        ENGLISH_FREQUENCIES,
+        key=ENGLISH_FREQUENCIES.get,
+        reverse=True,
+    )
+
+    available_cipher = [letter for letter in ranked_cipher if letter not in overrides]
+    reserved_english = set(overrides.values())
+    available_english = [
+        letter for letter in ranked_english if letter not in reserved_english
+    ]
+    automatic_mapping = dict(zip(available_cipher, available_english))
+    return {**automatic_mapping, **overrides}
 
 
 def decrypt_text(text: str, mapping: dict[str, str]) -> str:
@@ -62,28 +94,33 @@ def main():
 
     cipher_text = input_file.read_text(encoding="utf-8")
 
-    # Generate mapping automatically via frequency rank
-    auto_mapping = generate_frequency_mapping(cipher_text)
-
-    # Optional: Override/Refine specific letters manually once you spot words
+    # Override specific letters manually once you spot words until the text is fully decoded. This is a one-time manual override to speed up the process.
     manual_overrides = {
         's':'h',
         'f':'r',
         'o':'w',
+        'k':'a',
+        'y':'m',
+        'u':'i',
+        'z':'n',
+        'n':'g',
+        'e':'f',
+        'v':'j',
+        'q':'y',
+        'm':'v',
+        'r':'z',
+        'i':'b',
     }
 
-    # Maybe check the manual overrides then redo the auto mapping to the next closest letter excluding the manual override.
-    # This would remove the duplicates made from the manual overrides.
+    final_mapping = generate_frequency_mapping_with_overrides(cipher_text, manual_overrides)
 
-    final_mapping = {**auto_mapping, **manual_overrides}
+    # With the method of redoing the final mapping based on manual overrides, 
+    # we remove duplicates and speed up the process of finding the correct mapping. 
 
     decoded_text = decrypt_text(cipher_text, final_mapping)
 
     output_file.write_text(decoded_text, encoding="utf-8")
     print(f"Decoded text written to {output_file}")
-
-    print(f"Key is")
-
 
 if __name__ == "__main__":
     main()
