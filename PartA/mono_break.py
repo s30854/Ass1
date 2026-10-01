@@ -85,8 +85,8 @@ def decrypt_text(text: str, mapping: dict[str, str]) -> str:
 
 
 def main():
-    input_file = Path("cipher3a.txt")
-    output_file = Path("cipher3a_decoded.txt")
+    input_file = Path("PartA/cipher3a.txt")
+    output_file = Path("PartA/cipher3a_decoded.txt")
 
     if not input_file.exists():
         print(f"Error: {input_file} not found.")
